@@ -1,4 +1,4 @@
-\# Movie Ticket Booking System - Python Term Project
+\# Movie Ticket Booking System - Python Term Project Cse101
 
 
 
@@ -26,7 +26,11 @@ Bu proje, terminal üzerinden çalışan kapsamlı bir sinema bilet rezervasyon 
 
 2\. Proje klasöründe `data/` ve `backups/` klasörlerinin mevcut olduğunu kontrol edin.
 
-3\. Uygulamayı başlatmak için: `python main.py`
+3\. Uygulamayı başlatmak için: `py main.py`
 
-4\. Testleri çalıştırmak için: `python tests.py`
+4\. Testleri çalıştırmak için: `py tests.py`
+
+
+
+Faik Ekin Akagündüz 20230701005-072
 
