@@ -16,9 +16,8 @@ def get_movie_title(movies, movie_id):
 def admin_menu(movies, showtimes, seat_maps, bookings):
     while True:
         print("\n--- ADMIN PANEL ---")
-        # Seçenekleri güncelledik: 3 numara raporlar oldu
         print("1. Add Movie\n2. Schedule Showtime\n3. View Reports\n4. Back")
-        choice = input("Selection: ")
+        choice = input("Selection: ").strip()
         
         if choice == "1":
             title = input("Movie Title: ")
@@ -30,19 +29,35 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
         elif choice == "2":
             sid = input("Showtime ID: ")
             mid = input("Movie ID: ")
-            s_data = {"id": sid, "movie_id": mid, "date": input("Date: ")}
+            s_data = {"id": sid, "movie_id": mid, "date": input("Date (YYYY-MM-DD): ")}
             m_logic.schedule_showtime(showtimes, s_data)
             seat_maps[sid] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
             print("Showtime scheduled.")
 
-        elif choice == "3": # YENİ RAPOR SEÇENEĞİ
-            print("\n--- SALES & REVENUE REPORT ---")
-            # reports.py içindeki fonksiyonu çağırıyoruz
-            # Not: Fonksiyon ismin farklıysa (örn: generate_report) ona göre düzelt
-            total_revenue = sum(b['price'] for b in bookings)
-            total_tickets = len(bookings)
-            print(f"Total Tickets Sold: {total_tickets}")
-            print(f"Total Revenue: {total_revenue} USD")
+        elif choice == "3":
+            print("\n" + "="*50)
+            print(f"{'MOVIE TITLE':<20} | {'ID':<5} | {'OCCUPANCY':<10}")
+            print("-" * 50)
+            
+            TOTAL_CAPACITY = 96 # 8 rows * 12 seats
+            total_revenue = 0
+            
+            for s in showtimes:
+                # Calculate occupancy using the logic from reports module
+                sold_count = len([b for b in bookings if str(b.get('showtime_id')) == str(s['id'])])
+                occ_rate = (sold_count / TOTAL_CAPACITY) * 100
+                title = get_movie_title(movies, s['movie_id'])
+                
+                # Revenue calculation
+                s_revenue = sum(b.get('price', 0) for b in bookings if str(b.get('showtime_id')) == str(s['id']))
+                total_revenue += s_revenue
+                
+                print(f"{title[:20]:<20} | {s['id']:<5} | {occ_rate:>8.1f}%")
+            
+            print("-" * 50)
+            print(f"TOTAL REVENUE: {total_revenue:.2f} USD")
+            print(f"TOTAL TICKETS SOLD: {len(bookings)}")
+            print("="*50)
             
         elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
@@ -51,7 +66,7 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
     while True:
         print("\n--- CUSTOMER MENU ---")
         print("1. List Showtimes\n2. Book Ticket\n3. Cancel Booking\n4. Back")
-        choice = input("Selection: ").strip() # Boşlukları temizle
+        choice = input("Selection: ").strip()
         
         if choice == "1":
             print("\n--- AVAILABLE SHOWTIMES ---")
@@ -70,19 +85,16 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
                     print(f"\nTotal Price (incl. VAT): {price} USD")
                     
                     if input("Confirm payment? (y/n): ").strip().lower() == 'y':
-                        # Bilet verisini hazırlıyoruz
                         b_data = {
                             "showtime_id": sid,
                             "seats": [seat], 
                             "price": price, 
-                            "email": input("Enter your email: ").strip().lower() # Küçük harf ve temiz
+                            "email": input("Enter your email: ").strip().lower()
                         }
                         
-                        # Modülleri çağırıyoruz
                         s_logic.reserve_seat(seat_maps[sid], seat)
                         b_logic.create_booking(bookings, seat_maps, b_data)
                         
-                        # EĞER bookings.py listeye eklemiyorsa burada manuel garantiye alıyoruz:
                         if b_data not in bookings:
                             bookings.append(b_data)
                             
@@ -92,7 +104,6 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
 
         elif choice == "3":
             email = input("Enter your email to find bookings: ").strip().lower()
-            # E-posta eşleşmesi için listeyi tarıyoruz
             user_bookings = [b for b in bookings if str(b.get('email', '')).lower() == email]
             
             if not user_bookings:
@@ -108,11 +119,8 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
                     if c_input.lower() != 'n':
                         c_idx = int(c_input) - 1
                         target = user_bookings[c_idx]
-                        
-                        # Listeden sil
                         bookings.remove(target)
                         
-                        # Haritayı sıfırla ve kalan biletleri tekrar işaretle (Refresh)
                         seat_maps[target['showtime_id']] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
                         for b_rem in bookings:
                             if b_rem['showtime_id'] == target['showtime_id']:
@@ -125,6 +133,7 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
             
         elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
+
 def main():
     if not os.path.exists(BASE_DIR): os.makedirs(BASE_DIR)
     movies, showtimes, bookings = st_logic.load_state(BASE_DIR)
