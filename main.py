@@ -39,7 +39,7 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
 def customer_menu(movies, showtimes, seat_maps, bookings):
     while True:
         print("\n--- CUSTOMER MENU ---")
-        print("1. List Showtimes\n2. Book Ticket\n3. Back")
+        print("1. List Showtimes\n2. Book Ticket\n3. Cancel Booking\n4. Back")
         choice = input("Selection: ")
         
         if choice == "1":
@@ -70,8 +70,33 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
                         print("Booking successful!")
                 else: print("Error: Seat is already taken!")
             else: print("Error: Invalid Showtime ID!")
+
+        elif choice == "3":
+            email = input("Enter your email to find bookings: ")
+            user_bookings = [b for b in bookings if b['email'] == email]
             
-        elif choice == "3": break
+            if not user_bookings:
+                print("No bookings found for this email.")
+            else:
+                for i, b in enumerate(user_bookings):
+                    print(f"{i+1}. Showtime: {b['showtime_id']} | Seat: {b['seats'][0]}")
+                
+                try:
+                    c_idx = int(input("Select booking to cancel (number): ")) - 1
+                    target = user_bookings[c_idx]
+                    
+                    # Logic: 1. Remove from bookings list, 2. Free the seat in seat_map
+                    bookings.remove(target)
+                    s_logic.initialize_seat_map(seat_maps[target['showtime_id']]) # Refresh logic
+                    for b_remain in bookings:
+                        if b_remain['showtime_id'] == target['showtime_id']:
+                            s_logic.reserve_seat(seat_maps[b_remain['showtime_id']], b_remain['seats'][0])
+                    
+                    print("Booking cancelled successfully!")
+                except:
+                    print("Invalid selection.")
+            
+        elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
 
 def main():
