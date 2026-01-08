@@ -35,7 +35,7 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
             seat_maps[sid] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
             print("Showtime scheduled.")
 
-elif choice == "3":
+	elif choice == "3":
             print("\n" + "="*45)
             print(f"{'MOVIE TITLE':<20} | {'ID':<5} | {'OCCUPANCY':<10}")
             print("-" * 45)
