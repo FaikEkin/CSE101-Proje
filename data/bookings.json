@@ -14,5 +14,53 @@
         ],
         "price": 240,
         "email": "ekin"
+    },
+    {
+        "showtime_id": "111",
+        "seats": [
+            "A6"
+        ],
+        "price": 240,
+        "email": "ekin"
+    },
+    {
+        "showtime_id": "111",
+        "seats": [
+            "A7"
+        ],
+        "price": 240,
+        "email": "ekin"
+    },
+    {
+        "showtime_id": "111",
+        "seats": [
+            "A8"
+        ],
+        "price": 240,
+        "email": "ekin"
+    },
+    {
+        "showtime_id": "190",
+        "seats": [
+            "A1"
+        ],
+        "price": 240,
+        "email": "ekin"
+    },
+    {
+        "showtime_id": "190",
+        "seats": [
+            "A2"
+        ],
+        "price": 240,
+        "email": "ekin"
+    },
+    {
+        "showtime_id": "190",
+        "seats": [
+            "A3"
+        ],
+        "price": 240,
+        "email": "ekin"
     }
 ]
