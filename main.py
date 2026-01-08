@@ -40,7 +40,7 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
     while True:
         print("\n--- CUSTOMER MENU ---")
         print("1. List Showtimes\n2. Book Ticket\n3. Cancel Booking\n4. Back")
-        choice = input("Selection: ")
+        choice = input("Selection: ").strip() # Boşlukları temizle
         
         if choice == "1":
             print("\n--- AVAILABLE SHOWTIMES ---")
@@ -49,56 +49,71 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
                 print(f"ID: {s['id']} | Movie: {title} | Date: {s['date']}")
                 
         elif choice == "2":
-            sid = input("Enter Showtime ID: ")
+            sid = input("Enter Showtime ID: ").strip()
             if sid in seat_maps:
                 print(s_logic.render_seat_map(seat_maps[sid]))
-                seat = input("Select Seat (e.g., A1): ").upper()
+                seat = input("Select Seat (e.g., A1): ").strip().upper()
                 
                 if s_logic.is_seat_available(seat_maps[sid], seat):
                     price = 240 if seat[0] in ['A', 'B'] else 180
                     print(f"\nTotal Price (incl. VAT): {price} USD")
                     
-                    if input("Confirm payment? (y/n): ").lower() == 'y':
-                        s_logic.reserve_seat(seat_maps[sid], seat)
+                    if input("Confirm payment? (y/n): ").strip().lower() == 'y':
+                        # Bilet verisini hazırlıyoruz
                         b_data = {
                             "showtime_id": sid,
                             "seats": [seat], 
                             "price": price, 
-                            "email": input("Enter your email: ")
+                            "email": input("Enter your email: ").strip().lower() # Küçük harf ve temiz
                         }
+                        
+                        # Modülleri çağırıyoruz
+                        s_logic.reserve_seat(seat_maps[sid], seat)
                         b_logic.create_booking(bookings, seat_maps, b_data)
+                        
+                        # EĞER bookings.py listeye eklemiyorsa burada manuel garantiye alıyoruz:
+                        if b_data not in bookings:
+                            bookings.append(b_data)
+                            
                         print("Booking successful!")
                 else: print("Error: Seat is already taken!")
             else: print("Error: Invalid Showtime ID!")
 
         elif choice == "3":
-            email = input("Enter your email to find bookings: ")
-            user_bookings = [b for b in bookings if b['email'] == email]
+            email = input("Enter your email to find bookings: ").strip().lower()
+            # E-posta eşleşmesi için listeyi tarıyoruz
+            user_bookings = [b for b in bookings if str(b.get('email', '')).lower() == email]
             
             if not user_bookings:
-                print("No bookings found for this email.")
+                print(f"No bookings found for email: {email}")
             else:
+                print("\n--- YOUR BOOKINGS ---")
                 for i, b in enumerate(user_bookings):
-                    print(f"{i+1}. Showtime: {b['showtime_id']} | Seat: {b['seats'][0]}")
+                    s_id = b.get('seats', ['?'])[0]
+                    print(f"{i+1}. Showtime: {b['showtime_id']} | Seat: {s_id}")
                 
                 try:
-                    c_idx = int(input("Select booking to cancel (number): ")) - 1
-                    target = user_bookings[c_idx]
-                    
-                    # Logic: 1. Remove from bookings list, 2. Free the seat in seat_map
-                    bookings.remove(target)
-                    s_logic.initialize_seat_map(seat_maps[target['showtime_id']]) # Refresh logic
-                    for b_remain in bookings:
-                        if b_remain['showtime_id'] == target['showtime_id']:
-                            s_logic.reserve_seat(seat_maps[b_remain['showtime_id']], b_remain['seats'][0])
-                    
-                    print("Booking cancelled successfully!")
+                    c_input = input("Select booking to cancel (number) or 'n' to exit: ").strip()
+                    if c_input.lower() != 'n':
+                        c_idx = int(c_input) - 1
+                        target = user_bookings[c_idx]
+                        
+                        # Listeden sil
+                        bookings.remove(target)
+                        
+                        # Haritayı sıfırla ve kalan biletleri tekrar işaretle (Refresh)
+                        seat_maps[target['showtime_id']] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
+                        for b_rem in bookings:
+                            if b_rem['showtime_id'] == target['showtime_id']:
+                                s_id_rem = b_rem.get('seats', [None])[0]
+                                if s_id_rem: s_logic.reserve_seat(seat_maps[b_rem['showtime_id']], s_id_rem)
+                        
+                        print("Booking cancelled successfully!")
                 except:
                     print("Invalid selection.")
             
         elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
-
 def main():
     if not os.path.exists(BASE_DIR): os.makedirs(BASE_DIR)
     movies, showtimes, bookings = st_logic.load_state(BASE_DIR)
