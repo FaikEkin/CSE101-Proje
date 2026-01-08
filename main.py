@@ -3,6 +3,7 @@ import movies as m_logic
 import seating as s_logic
 import bookings as b_logic
 import storage as st_logic
+import reports as r_logic
 
 BASE_DIR = "data"
 
@@ -15,7 +16,8 @@ def get_movie_title(movies, movie_id):
 def admin_menu(movies, showtimes, seat_maps, bookings):
     while True:
         print("\n--- ADMIN PANEL ---")
-        print("1. Add Movie\n2. Schedule Showtime\n3. Back")
+        
+        print("1. Add Movie\n2. Schedule Showtime\n3. View Reports\n4. Back")
         choice = input("Selection: ")
         
         if choice == "1":
@@ -23,17 +25,25 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
             new_id = str(len(movies) + 1)
             m_data = {"id": new_id, "title": title, "genre": input("Genre: ")}
             m_logic.add_movie(movies, m_data)
-            print(f"Success! Movie assigned ID: {new_id}")
+            print(f"Success! ID: {new_id}")
             
         elif choice == "2":
             sid = input("Showtime ID: ")
             mid = input("Movie ID: ")
-            s_data = {"id": sid, "movie_id": mid, "date": input("Date (YYYY-MM-DD): ")}
+            s_data = {"id": sid, "movie_id": mid, "date": input("Date: ")}
             m_logic.schedule_showtime(showtimes, s_data)
             seat_maps[sid] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
-            print(f"Showtime scheduled for '{get_movie_title(movies, mid)}'.")
+            print("Showtime scheduled.")
+
+        elif choice == "3": # YENİ RAPOR SEÇENEĞİ
+            print("\n--- SALES & REVENUE REPORT ---")
+
+            total_revenue = sum(b['price'] for b in bookings)
+            total_tickets = len(bookings)
+            print(f"Total Tickets Sold: {total_tickets}")
+            print(f"Total Revenue: {total_revenue} USD")
             
-        elif choice == "3": break
+        elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
 
 def customer_menu(movies, showtimes, seat_maps, bookings):
