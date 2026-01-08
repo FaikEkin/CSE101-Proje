@@ -6,5 +6,13 @@
         ],
         "price": 180,
         "email": "ekin"
+    },
+    {
+        "showtime_id": "190",
+        "seats": [
+            "A8"
+        ],
+        "price": 240,
+        "email": "ekin"
     }
 ]

@@ -35,13 +35,31 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
             seat_maps[sid] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
             print("Showtime scheduled.")
 
-        elif choice == "3": # YENİ RAPOR SEÇENEĞİ
-            print("\n--- SALES & REVENUE REPORT ---")
-
-            total_revenue = sum(b['price'] for b in bookings)
-            total_tickets = len(bookings)
-            print(f"Total Tickets Sold: {total_tickets}")
-            print(f"Total Revenue: {total_revenue} USD")
+elif choice == "3":
+            print("\n" + "="*45)
+            print(f"{'MOVIE TITLE':<20} | {'ID':<5} | {'OCCUPANCY':<10}")
+            print("-" * 45)
+            
+            # Toplam kapasite (8x12 matrisimize göre)
+            TOTAL_CAPACITY = 96 
+            total_revenue = 0
+            
+            for s in showtimes:
+                # Bu seansa ait biletleri say
+                sold_count = len([b for b in bookings if str(b['showtime_id']) == str(s['id'])])
+                occ_rate = (sold_count / TOTAL_CAPACITY) * 100
+                title = get_movie_title(movies, s['movie_id'])
+                
+                # Seans başı gelir hesabı
+                s_revenue = sum(b['price'] for b in bookings if str(b['showtime_id']) == str(s['id']))
+                total_revenue += s_revenue
+                
+                print(f"{title[:20]:<20} | {s['id']:<5} | {occ_rate:>8.1f}%")
+            
+            print("-" * 45)
+            print(f"TOTAL REVENUE: {total_revenue:.2f} USD")
+            print(f"TOTAL TICKETS: {len(bookings)}")
+            print("="*45)
             
         elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
