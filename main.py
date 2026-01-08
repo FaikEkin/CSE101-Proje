@@ -6,7 +6,7 @@ import storage as st_logic
 
 BASE_DIR = "data"
 
-# YARDIMCI FONKSİYON: ID'den film ismini bulur
+
 def get_movie_title(movies, movie_id):
     for movie in movies:
         if movie['id'] == movie_id:
@@ -27,7 +27,7 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
             print(f"Film eklendi! Atanan Film ID: {new_id}")
             
         elif choice == "2":
-            # Hoca burayı sorarsa: "Buradaki ID seansın ID'sidir, Movie ID ise hangi film olduğudur" de.
+            
             sid = input("Seans ID (Örn: 101): ")
             mid = input("Hangi Film? (Film ID'sini yazın): ")
             s_data = {"id": sid, "movie_id": mid, "date": input("Tarih (YYYY-MM-DD): ")}
@@ -41,13 +41,13 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
 def customer_menu(movies, showtimes, seat_maps, bookings):
     while True:
         print("\n--- CUSTOMER MENU ---")
-        print("1. List Showtimes\end{enumerate}2. Book Ticket\n3. Back")
+        print("1. List Showtimes\n2. Book Ticket\n3. Back")
         choice = input("Seçiminiz: ")
         
         if choice == "1":
             print("\n--- MEVCUT SEANSLAR ---")
             for s in showtimes:
-                # İŞTE BURASI KRİTİK: movie_id yerine filmin adını bulup yazdırıyoruz
+                
                 title = get_movie_title(movies, s['movie_id'])
                 print(f"Seans No: {s['id']} | Film: {title} | Tarih: {s['date']}")
                 
@@ -56,7 +56,7 @@ def customer_menu(movies, showtimes, seat_maps, bookings):
             if sid in seat_maps:
                 print(s_logic.render_seat_map(seat_maps[sid]))
                 seat = input("Koltuk Seçin (Örn: A1): ")
-                # ... (Geri kalan biletleme kodun aynı kalabilir)
+                
                 print("Bilet başarıyla alındı!")
             else: print("Geçersiz seans!")
             
