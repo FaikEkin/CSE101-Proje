@@ -34,7 +34,7 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
             m_logic.schedule_showtime(showtimes, s_data)
             seat_maps[sid] = s_logic.initialize_seat_map({"rows": 8, "seats_per_row": 12})
             print("Showtime scheduled.")
-
+	
 	elif choice == "3":
             print("\n" + "="*45)
             print(f"{'MOVIE TITLE':<20} | {'ID':<5} | {'OCCUPANCY':<10}")
@@ -60,7 +60,8 @@ def admin_menu(movies, showtimes, seat_maps, bookings):
             print(f"TOTAL REVENUE: {total_revenue:.2f} USD")
             print(f"TOTAL TICKETS: {len(bookings)}")
             print("="*45)
-            
+
+	            
         elif choice == "4": break
         st_logic.save_state(BASE_DIR, movies, showtimes, bookings)
 
